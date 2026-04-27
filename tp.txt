@@ -1,0 +1,80 @@
+ARBORESCENCE - DOSSIER CODE TYPESCRIPT
+
+code typescript/
+|-- ATTRIBUTIONS.md
+|-- default_shadcn_theme.css
+|-- index.html
+|-- index.php
+|-- package.json
+|-- pnpm-workspace.yaml
+|-- postcss.config.mjs
+|-- README.md
+|-- gestion_auditoires/
+|   |-- index.php
+|   |-- INSTALLATION.md
+|   |-- README.md
+|   |-- backend/
+|   |   |-- generate_planning.php
+|   |   |-- read.php
+|   |   |-- utils.php
+|   |   `-- write.php
+|   |-- data/
+|   |   |-- cours.json
+|   |   |-- planning.json
+|   |   |-- promotions.json
+|   |   `-- salles.json
+|   |-- frontend/
+|   |   |-- components/
+|   |   |   |-- footer.php
+|   |   |   `-- header.php
+|   |   |-- css/
+|   |   |   `-- style.css
+|   |   `-- pages/
+|   |       |-- afficher_donnees.php
+|   |       |-- afficher_planning.php
+|   |       |-- ajouter_cours.php
+|   |       |-- ajouter_promotion.php
+|   |       `-- ajouter_salle.php
+|   `-- routes/
+|       |-- generer_planning.php
+|       |-- traiter_cours.php
+|       |-- traiter_promotion.php
+|       `-- traiter_salle.php
+|-- guidelines/
+|   `-- Guidelines.md
+`-- src/
+	|-- main.tsx
+	|-- app/
+	|   |-- App.tsx
+	|   |-- routes.ts
+	|   `-- components/
+	|       |-- AddClassroom.tsx
+	|       |-- AddCourse.tsx
+	|       |-- AddGroup.tsx
+	|       |-- Dashboard.tsx
+	|       |-- Layout.tsx
+	|       |-- Schedule.tsx
+	|       |-- ViewData.tsx
+	|       |-- store.ts
+	|       |-- figma/
+	|       |   `-- ImageWithFallback.tsx
+	|       `-- ui/
+	|           `-- (composants UI Radix/Shadcn)
+	`-- styles/
+		|-- fonts.css
+		|-- index.css
+		|-- tailwind.css
+		`-- theme.css
+
+TODO LIST - CODE TYPESCRIPT
+
+1. Installer les dependances dans le dossier code typescript.
+2. Lancer le serveur de dev Vite et verifier que la page se charge sans erreur.
+3. Connecter les composants React aux donnees JSON de l'application.
+4. Definir les types TypeScript pour Cours, Salle, Promotion et Planning.
+5. Centraliser l'etat de l'app dans store.ts avec actions CRUD.
+6. Brancher les formulaires AddCourse, AddClassroom et AddGroup au store.
+7. Implementer la generation du planning cote frontend avec validation des conflits.
+8. Ajouter une couche API (routes PHP existantes) pour persister les donnees.
+9. Ajouter la gestion des erreurs utilisateur (champs invalides, conflits, JSON vide).
+10. Ajouter une verification finale build + test manuel des parcours critiques.
