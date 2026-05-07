@@ -1,0 +1,351 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+\setlist[itemize]{leftmargin=1.5em}
+\setlist[enumerate]{leftmargin=1.8em}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    pdftitle={Rapport academique - Gestion des Auditoires},
+    pdfauthor={ELIAKIM MASSAMBA MANANGA et DAN BEZE MBO}
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    {\scshape\Large Universite Protestante au Congo (UPC)\par}
+    \vspace{0.5cm}
+    {\large Annee academique 2025-2026\par}
+    \vspace{1.5cm}
+    {\huge\bfseries Rapport academique de TP\par}
+    \vspace{1cm}
+    {\Large Cours de programmation Web PHP\par}
+    \vspace{0.7cm}
+    {\Large Analyse et description du projet \textit{Gestion\_auditoire}\par}
+    \vspace{0.5cm}
+    {\large Systeme de gestion des auditoires et de generation de planning universitaire\par}
+    \vspace{2cm}
+
+    \begin{tabular}{rl}
+        \textbf{Etablissement :} & Universite Protestante au Congo (UPC) \\
+        \textbf{Faculte :} & Faculte des Sciences Informatiques (FASI) \\
+        \textbf{Classe :} & L2 LMD \\
+        \textbf{Cours :} & Programmation Web PHP \\
+        \textbf{Annee academique :} & 2025-2026 \\
+        \\
+        \textbf{Realise par :} & ELIAKIM MASSAMBA MANANGA \\
+                               & DAN BEZE MBO \\
+        \\
+        \textbf{Nature du document :} & Rapport de projet academique \\
+        \textbf{Date :} & Mai 2026 \\
+    \end{tabular}
+
+    \vfill
+
+    \begin{minipage}{0.9\textwidth}
+        \centering
+        Ce document presente l'architecture, les composants, le fonctionnement et l'interet technique du projet \textit{Gestion\_auditoire}. Il se concentre exclusivement sur l'application PHP realisee dans le cadre du TP, ainsi que sur les choix techniques retenus pour la gestion des salles, des promotions, des cours et du planning hebdomadaire.
+    \end{minipage}
+
+    \vfill
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+\begin{abstract}
+Le projet \textit{Gestion\_auditoire} est une application academique de gestion des salles, des promotions, des options et des cours, avec une fonctionnalite centrale de generation automatique d'un planning hebdomadaire. Le travail etudie ici correspond au TP du cours de programmation Web PHP et repose sur une persistance par fichiers JSON, conformement a la consigne de l'assistant encadrant plutot que sur une base de donnees classique. Ce rapport presente la structure du projet, decrit chaque compartiment logiciel, explique les principaux flux fonctionnels et analyse les qualites, limites et perspectives d'amelioration du systeme.
+\end{abstract}
+
+\section{Introduction}
+La planification des enseignements constitue un besoin recurrent dans les institutions d'enseignement superieur. Entre la disponibilite des salles, la taille des promotions, la nature obligatoire ou optionnelle des cours et les contraintes de calendrier, la gestion manuelle devient rapidement lourde et source d'erreurs.
+
+Le projet \textit{Gestion\_auditoire} a pour objectif de proposer un outil simple permettant :
+\begin{itemize}
+    \item d'enregistrer les salles et leurs capacites ;
+    \item de definir les promotions et le nombre d'etudiants ;
+    \item de declarer les options et les cours ;
+    \item de generer automatiquement un planning hebdomadaire sans conflit de salle ni de promotion dans la version PHP principale ;
+    \item d'offrir une interface d'administration exploitable dans un contexte pedagogique.
+\end{itemize}
+
+Ce rapport decrit le projet dans une logique academique : presentation generale, architecture, explication de chaque compartiment, analyse technique et conclusion. Il porte exclusivement sur la solution PHP developpee pour le TP.
+
+\section{Presentation generale du projet}
+Le projet etudie correspond a une application web developpee en PHP dans le cadre d'un TP academique. Son objectif principal est d'automatiser la gestion des ressources pedagogiques et de produire un planning hebdomadaire exploitable a partir des donnees saisies par l'utilisateur. L'organisation du depot montre une separation claire entre les pages d'interface, la logique metier, les routes de traitement et les fichiers de stockage.
+
+L'application traite des entites centrales du domaine academique :
+\begin{itemize}
+    \item les \textbf{salles}, caracterisees par un nom et une capacite ;
+    \item les \textbf{promotions}, caracterisees par un nom et un nombre d'etudiants ;
+    \item les \textbf{options}, qui servent a differencier certains enseignements ;
+    \item les \textbf{cours}, rattaches a une promotion et eventuellement a une option ;
+    \item le \textbf{planning}, resultat de l'algorithme de generation.
+\end{itemize}
+
+\section{Architecture globale}
+\subsection{Vue d'ensemble}
+L'architecture generale du projet repose sur une separation simple mais lisible des responsabilites :
+\begin{itemize}
+    \item la couche \textbf{presentation} est portee par les pages PHP du dossier \texttt{frontend/} ;
+    \item la couche \textbf{metier} est prise en charge par les scripts du dossier \texttt{backend/} ;
+    \item la couche \textbf{donnees} repose sur des fichiers JSON regroupes dans \texttt{data/} ;
+    \item la couche \textbf{controleur} est implementee par les scripts du dossier \texttt{routes/}, qui recoivent les formulaires, valident les donnees et appellent la logique metier.
+\end{itemize}
+
+Cette organisation s'apparente a une architecture MVC simplifiee, adaptee a un projet academique de taille moderee.
+
+\subsection{Arborescence simplifiee}
+\begin{Verbatim}[fontsize=\small]
+Gestion_auditoire/
+|-- index.php
+|-- login.php
+|-- backend/
+|-- data/
+|-- frontend/
+|-- routes/
+|-- README.md
+|-- theorie.txt
+`-- tp.txt
+\end{Verbatim}
+
+\subsection{Lecture critique de l'architecture}
+Le projet montre une progression interessante d'un point de vue pedagogique :
+\begin{itemize}
+    \item l'application PHP a la racine privilegie une architecture claire, facile a deployer et adaptee a un TP ;
+    \item la separation entre interface, logique metier, routes et stockage rend le code plus lisible ;
+    \item la persistance par JSON simplifie l'installation et permet de se concentrer sur les mecanismes fondamentaux de PHP.
+\end{itemize}
+
+\section{Description detaillee des compartiments du projet}
+\subsection{Fichiers situes a la racine}
+\begin{itemize}
+    \item \texttt{index.php} : page d'accueil de l'application PHP principale. Elle joue le role de tableau de bord, calcule quelques indicateurs et propose des raccourcis vers l'ajout de salles, de promotions, d'options et de cours, ainsi que vers la consultation du planning.
+    \item \texttt{login.php} : page d'authentification. Elle prend en charge a la fois une connexion classique par nom d'utilisateur et mot de passe et une connexion biometrique via WebAuthn.
+    \item \texttt{README.md} : fichier de presentation sommaire du projet.
+    \item \texttt{theorie.txt} : fichier present mais vide dans l'etat actuel du depot.
+    \item \texttt{tp.txt} : fichier annexe de notes de travail conserve a la racine du projet.
+\end{itemize}
+
+\subsection{Le dossier \texttt{backend/}}
+Le dossier \texttt{backend/} regroupe la logique metier principale de l'application PHP.
+
+\paragraph{\texttt{read.php}}
+Ce fichier centralise la lecture des donnees JSON. Il contient une fonction generique de lecture et plusieurs fonctions specialisees : lecture des salles, des promotions, des options, des cours et du planning. Il offre egalement des fonctions de recherche par identifiant. Un point technique pertinent est la suppression du BOM UTF-8 avant le \texttt{json\_decode}, ce qui rend l'application plus robuste face a des fichiers JSON enregistres depuis certains environnements Windows.
+
+\paragraph{\texttt{write.php}}
+Ce module gere l'ecriture et la mise a jour des donnees. Il implemente les operations CRUD : ajout, modification et suppression des salles, promotions, options et cours. Il force aussi la reinitialisation du planning apres chaque modification structurelle, afin d'eviter qu'un ancien planning reste incoherent apres un changement de capacite, de promotion ou de cours. Certaines suppressions sont protegees : une promotion ou une option ne peut pas etre retiree si elle est encore referencee par un cours.
+
+\paragraph{\texttt{utils.php}}
+Ce fichier joue un role transversal. Il gere :
+\begin{itemize}
+    \item l'ouverture de session ;
+    \item la construction dynamique des URL de l'application selon le chemin reel du projet dans le serveur web ;
+    \item le nettoyage des donnees utilisateurs ;
+    \item les redirections et les reponses JSON ;
+    \item l'authentification par identifiants ;
+    \item les outils de bas niveau pour WebAuthn et le stockage des passkeys.
+\end{itemize}
+
+\paragraph{\texttt{generate\_planning.php}}
+Ce fichier contient le coeur algorithmique du projet. L'algorithme :
+\begin{enumerate}
+    \item lit la liste des cours et des salles ;
+    \item ordonne les salles par capacite croissante ;
+    \item pour chaque cours, retrouve la promotion correspondante ;
+    \item filtre les salles compatibles en fonction du nombre d'etudiants ;
+    \item explore les jours et les horaires disponibles ;
+    \item interdit deux conflits : la meme salle au meme creneau et la meme promotion au meme creneau ;
+    \item enregistre les cours non planifies avec une raison explicite lorsque la planification est impossible.
+\end{enumerate}
+
+Ainsi, la generation du planning ne se limite pas a remplir un tableau : elle introduit deja une logique de contraintes proche d'un veritable probleme d'affectation.
+
+\subsection{Le dossier \texttt{data/}}
+Le dossier \texttt{data/} sert de stockage persistant dans l'application PHP principale. Dans le cadre de ce TP, le recours aux fichiers JSON ne resulte pas d'un choix arbitraire : il repond a la consigne de l'assistant encadrant, qui a demande un stockage leger en JSON a la place d'une base de donnees classique. Ce cadre pedagogique a conduit a organiser la lecture, l'ecriture et la mise a jour des donnees autour de fichiers structurés par entite.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.66\textwidth}}
+\toprule
+\textbf{Fichier} & \textbf{Role} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Fichier} & \textbf{Role} \\
+\midrule
+\endhead
+\texttt{salles.json} & Contient la liste des salles avec leur identifiant, leur nom et leur capacite. \\
+\texttt{promotion.json} & Contient la liste des promotions et le nombre d'etudiants correspondant. \\
+\texttt{option.json} & Contient les options disponibles pour les cours optionnels. \\
+\texttt{cours.json} & Contient les cours, leur type et leurs references vers promotions et options. \\
+\texttt{planning.json} & Contient le planning calcule par l'algorithme de generation. \\
+\texttt{passkeys.json} & Conserve les informations necessaires a l'authentification biometrque par WebAuthn. \\
+\bottomrule
+\end{longtable}
+
+Cette strategie de stockage est simple a comprendre et coherente avec les objectifs du TP. Elle permet de manipuler directement les donnees avec PHP sans dependance a un SGBD. En contrepartie, elle presente naturellement certaines limites, notamment l'absence de transactions, une concurrence d'ecriture limitee et une scalabilite inferieure a celle d'une base de donnees relationnelle.
+
+\subsection{Le dossier \texttt{frontend/}}
+Le dossier \texttt{frontend/} porte l'interface PHP rendue cote serveur.
+
+\paragraph{Sous-dossier \texttt{frontend/components/}}
+On y trouve principalement l'en-tete et le pied de page. Le fichier \texttt{header.php} assure plusieurs fonctions importantes :
+\begin{itemize}
+    \item il impose l'authentification avant l'affichage ;
+    \item il construit la navigation laterale ;
+    \item il harmonise l'identite visuelle de toutes les pages.
+\end{itemize}
+
+\paragraph{Sous-dossier \texttt{frontend/pages/}}
+Ce sous-dossier regroupe les ecrans fonctionnels de l'application :
+\begin{itemize}
+    \item \texttt{ajouter\_salle.php}, \texttt{ajouter\_promotion.php}, \texttt{ajouter\_option.php} et \texttt{ajouter\_cours.php} pour la creation des donnees ;
+    \item \texttt{modifier\_salle.php}, \texttt{modifier\_promotion.php}, \texttt{modifier\_option.php} et \texttt{modifier\_cours.php} pour la mise a jour ;
+    \item \texttt{afficher\_donnees.php} pour la consultation globale des entites et la suppression via actions associees ;
+    \item \texttt{afficher\_planning.php} pour la consultation du planning hebdomadaire sous forme tabulaire.
+\end{itemize}
+
+\paragraph{Sous-dossier \texttt{frontend/CSS/}}
+Le fichier \texttt{style.css} fournit l'habillage graphique. Il donne au projet une presentation moderne, avec tableau de bord, cartes, tableaux, boutons et navigation laterale.
+
+\subsection{Le dossier \texttt{routes/}}
+Le dossier \texttt{routes/} joue le role de couche de controle. Chaque script recoit une requete HTTP, valide la methode utilisee, nettoie les donnees, appelle la logique metier appropriee, puis redirige l'utilisateur.
+
+\begin{itemize}
+    \item \texttt{traiter\_salle.php}, \texttt{traiter\_promotion.php}, \texttt{traiter\_option.php}, \texttt{traiter\_cours.php} : creation des entites.
+    \item \texttt{modifier\_salle.php}, \texttt{modifier\_promotion.php}, \texttt{modifier\_option.php}, \texttt{modifier\_cours.php} : mise a jour des enregistrements existants.
+    \item \texttt{supprimer\_salle.php}, \texttt{supprimer\_promotion.php}, \texttt{supprimer\_option.php}, \texttt{supprimer\_cours.php} : suppression des entites.
+    \item \texttt{generer\_planning.php} : declenche la generation du planning et renvoie un message de resultat.
+    \item \texttt{logout.php} : termine la session utilisateur.
+    \item \texttt{webauthn\_register\_options.php}, \texttt{webauthn\_register\_verify.php}, \texttt{webauthn\_auth\_options.php}, \texttt{webauthn\_auth\_verify.php} : gerent les defis, l'enregistrement et la verification des passkeys biometrques.
+\end{itemize}
+
+L'interet pedagogique de ce dossier est important : il montre clairement la transition entre l'interface et la logique metier.
+
+\subsection{Perimetre retenu pour le rapport}
+Le present rapport se limite volontairement a l'application PHP realisee pour le TP. L'analyse detaillee porte donc sur les scripts PHP, les routes, les fichiers JSON de persistance et les mecanismes metier directement utilises dans le fonctionnement de l'application.
+
+\section{Fonctionnement de l'application PHP principale}
+\subsection{Scenario d'utilisation}
+Le deroulement typique de l'application est le suivant :
+\begin{enumerate}
+    \item l'utilisateur s'authentifie sur \texttt{login.php} ;
+    \item il accede au tableau de bord ;
+    \item il enregistre les salles, promotions, options et cours ;
+    \item il consulte les donnees pour controler la coherence des enregistrements ;
+    \item il lance la generation du planning ;
+    \item il consulte le tableau hebdomadaire genere et peut revenir modifier les donnees si necessaire.
+\end{enumerate}
+
+\subsection{Logique de validation}
+L'application ne se contente pas de stocker des formulaires. Plusieurs validations metier sont presentes :
+\begin{itemize}
+    \item la methode HTTP est verifiee dans les routes ;
+    \item les champs obligatoires sont controles ;
+    \item le type d'un cours est limite a des valeurs precises ;
+    \item un cours optionnel doit obligatoirement pointer vers une option ;
+    \item une promotion ou une option en cours d'utilisation ne peut pas etre supprimee ;
+    \item la planification verifie la compatibilite entre capacite de salle et effectif de promotion.
+\end{itemize}
+
+\subsection{Generation du planning}
+Le planning hebdomadaire repose sur 5 jours et 5 creneaux horaires, soit 25 positions possibles. Pour chaque cours, le systeme cherche la premiere combinaison valide en respectant les contraintes de salle et de promotion. Lorsque l'affectation echoue, le systeme conserve la trace de l'echec et du motif. Cette conception offre deux avantages :
+\begin{itemize}
+    \item elle garantit une certaine coherence du resultat produit ;
+    \item elle permet a l'utilisateur d'identifier les blocages, par exemple une salle trop petite ou un manque de creneaux disponibles.
+\end{itemize}
+
+\section{Authentification et securite}
+La securite du projet, bien qu'adaptee a un cadre academique, n'est pas negligee.
+
+\subsection{Connexion classique}
+Le module \texttt{utils.php} gere une authentification simple a partir d'identifiants configurables par variables d'environnement. Par defaut, l'application utilise un compte administrateur de demonstration. Une fois connecte, l'utilisateur est reconnu via la session PHP.
+
+\subsection{Connexion biometrque par WebAuthn}
+Un apport interessant du projet est l'integration d'une authentification par passkey. Le processus suit une logique moderne :
+\begin{enumerate}
+    \item emission d'un challenge cote serveur ;
+    \item utilisation de l'API navigateur \texttt{PublicKeyCredential} ;
+    \item verification du challenge, de l'origine et du type de requete ;
+    \item verification cryptographique de la signature avec OpenSSL ;
+    \item mise a jour du compteur de securite du credential.
+\end{enumerate}
+
+Cette fonctionnalite donne au projet une valeur technique superieure a celle d'un simple exercice CRUD.
+
+\subsection{Autres mesures de robustesse}
+Parmi les elements positifs, on peut relever :
+\begin{itemize}
+    \item le nettoyage des donnees en entree ;
+    \item la gestion centralisee des redirections ;
+    \item l'encapsulation des reponses JSON pour les routes asynchrones ;
+    \item le calcul dynamique du chemin d'installation, utile sous Laragon ou dans un sous-dossier du serveur web.
+\end{itemize}
+
+\section{Justification du choix du stockage JSON}
+Le recours au stockage en JSON constitue un element important du projet, car il influence directement l'architecture retenue. Dans ce TP de PHP, cette solution a ete demandee par l'assistant encadrant en remplacement d'une base de donnees classique. Le but etait de concentrer le travail sur la manipulation de fichiers, le traitement des formulaires, la structuration des modules PHP et la logique metier.
+
+Ce choix presente plusieurs avantages dans un cadre pedagogique :
+\begin{itemize}
+    \item il evite la complexite d'installation et de configuration d'un serveur de base de donnees ;
+    \item il rend les donnees directement lisibles par les etudiants ;
+    \item il facilite la comprehension des operations de lecture, d'ecriture et de mise a jour ;
+    \item il permet de centrer l'apprentissage sur PHP, les sessions, les formulaires et l'algorithmique de planning.
+\end{itemize}
+
+En consequence, l'absence de base de donnees relationnelle dans ce projet ne doit pas etre interpretee comme un oubli de conception, mais comme une decision pedagogique coherente avec les objectifs fixes pour le TP.
+
+\section{Forces, limites et perspectives}
+\subsection{Forces du projet}
+\begin{itemize}
+    \item architecture claire et facilement lisible ;
+    \item separation correcte entre presentation, logique metier, donnees et routes ;
+    \item prise en compte de contraintes reelles de planification ;
+    \item ajout d'une authentification biometrque moderne ;
+    \item mise en oeuvre d'un stockage JSON conforme au cadre pedagogique du TP.
+\end{itemize}
+
+\subsection{Limites constatees}
+\begin{itemize}
+    \item stockage JSON adapte a un projet de taille moderee, mais limite pour un usage a grande echelle ;
+    \item gestion de la concurrence d'ecriture moins robuste qu'avec une base de donnees ;
+    \item absence visible de tests automatises dans le depot principal ;
+    \item algorithme de planning encore heuristique, donc perfectible pour des contraintes plus complexes.
+\end{itemize}
+
+\subsection{Perspectives d'amelioration}
+Les evolutions naturelles du projet seraient les suivantes :
+\begin{enumerate}
+    \item enrichissement de l'algorithme de planning avec des contraintes supplementaires ;
+    \item journalisation des actions administratives ;
+    \item ajout de tests fonctionnels et unitaires ;
+    \item a plus long terme, et hors du cadre strict du TP, migration eventuelle vers MySQL ou PostgreSQL si l'application devait monter en charge.
+\end{enumerate}
+
+\section{Conclusion}
+Le projet \textit{Gestion\_auditoire} presente une realisation academique serieuse autour d'un probleme concret : l'organisation des ressources pedagogiques et la generation d'un emploi du temps. L'application PHP realisee pour le TP est deja capable de prendre en charge l'essentiel du cycle de gestion des donnees et la creation d'un planning hebdomadaire coherent.
+
+D'un point de vue academique, ce projet est pertinent pour plusieurs raisons : il mobilise la conception d'interfaces, la validation de donnees, la structuration modulaire du code, la persistance, l'algorithmique et meme des notions de securite avancee avec WebAuthn. Le recours au stockage JSON, demande dans le cadre du TP par l'assistant encadrant, s'inscrit pleinement dans cette logique pedagogique. Le projet constitue donc un travail complet, formateur et defendable dans le cadre d'un rapport universitaire.
+
+\vfill
+
+\noindent\textbf{Auteurs du projet :} ELIAKIM MASSAMBA MANANGA et DAN BEZE MBO.
+
+\end{document}
